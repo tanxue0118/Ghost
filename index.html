@@ -545,6 +545,32 @@
             animation: screenFlicker 0.15s ease-in-out;
         }
 
+        /* 突脸效果 */
+        .jumpscare {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 999999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #000;
+            opacity: 0;
+            transition: opacity 0.05s;
+        }
+
+        .jumpscare.show {
+            opacity: 1;
+        }
+
+        .jumpscare img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
 
 
         /* 窥视文字覆盖 */
@@ -1243,6 +1269,13 @@
                         return;
                     }
                     if (current === 7) { startQ8Effect(idx); return; }
+
+                    // 第12题突脸效果
+                    if (current === 11) {
+                        triggerJumpscare();
+                        return;
+                    }
+
                     if (current === 15) { setTimeout(() => openQ16Modal(), 100); return; }
                     if (current === 16) {
                         if (idx === 0 || idx === 1) {
@@ -1317,6 +1350,27 @@
 
         // 恐怖视觉效果系统
         let horrorEffectsActive = true;
+
+        // 突脸效果
+        function triggerJumpscare() {
+            const jumpscare = document.createElement('div');
+            jumpscare.className = 'jumpscare';
+            jumpscare.innerHTML = '<img src="1.jpg" alt="眼睛">';
+            document.body.appendChild(jumpscare);
+
+            // 立即显示
+            setTimeout(() => jumpscare.classList.add('show'), 50);
+
+            // 持续显示1.5秒后消失，自动跳到下一题
+            setTimeout(() => {
+                jumpscare.classList.remove('show');
+                setTimeout(() => {
+                    jumpscare.remove();
+                    current++;
+                    renderQuestion();
+                }, 100);
+            }, 1500);
+        }
 
         // 屏幕闪烁
         function triggerFlicker() {
