@@ -1327,10 +1327,26 @@
                 return;
             }
 
-            clearAllEffects();
-            if (current === 3) fromQ4ToQ5 = true;
-            if (current < total - 1) { current++; renderQuestion(); }
-            else { showFinalModal(); }
+            // 淡出效果
+            boxEl.style.transition = 'opacity 0.8s';
+            boxEl.style.opacity = '0';
+
+            setTimeout(() => {
+                clearAllEffects();
+                if (current === 3) fromQ4ToQ5 = true;
+                if (current < total - 1) {
+                    current++;
+                    renderQuestion();
+                    // 淡入
+                    boxEl.style.opacity = '0';
+                    setTimeout(() => {
+                        boxEl.style.transition = 'opacity 0.8s';
+                        boxEl.style.opacity = '1';
+                    }, 50);
+                } else {
+                    showFinalModal();
+                }
+            }, 800);
         };
 
         // 背景音乐
@@ -1353,6 +1369,7 @@
 
         // 突脸效果
         function triggerJumpscare() {
+            // 显示突脸图片
             const jumpscare = document.createElement('div');
             jumpscare.className = 'jumpscare';
             jumpscare.innerHTML = '<img src="1.jpg" alt="眼睛">';
@@ -1474,6 +1491,40 @@
         setTimeout(createRedWriting, 25000);
 
         document.getElementById('noticeBtn').onclick = function() {
+            // 时间判断：只能在21:00-09:00之间做问卷
+            const now = new Date();
+            const hour = now.getHours();
+
+            // 如果在9:00-21:00之间，禁止进入
+            if (hour >= 9 && hour < 21) {
+                const blockModal = document.createElement('div');
+                blockModal.style.cssText = `
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    background: #1a1a1a;
+                    color: #ff0000;
+                    padding: 30px 25px;
+                    border-radius: 12px;
+                    z-index: 9999999;
+                    text-align: center;
+                    width: min(85vw, 300px);
+                    border: 1px solid #333;
+                `;
+                blockModal.innerHTML = `
+                    <div style="font-size: 18px; font-weight: bold; margin-bottom: 15px;">⚠️ 时间未到</div>
+                    <div style="font-size: 14px; color: #999; line-height: 1.8;">
+                        本问卷只能在夜间进行<br>
+                        请在 21:00 - 09:00 之间访问<br>
+                        <br>
+                        <span style="color: #666; font-size: 12px;">现在是 ${hour}:${String(now.getMinutes()).padStart(2, '0')}</span>
+                    </div>
+                `;
+                document.body.appendChild(blockModal);
+                return;
+            }
+
             document.getElementById('noticeModal').remove();
             createBGM();
             openStartModal();
